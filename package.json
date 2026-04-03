@@ -1,6 +1,6 @@
 {
   "name": "reae",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "main": "index.ts",
   "scripts": {
     "start": "expo start",
@@ -28,6 +28,7 @@
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",
     "@supabase/supabase-js": "^2.101.0",
+    "chrono-node": "^2.9.0",
     "expo": "~54.0.33",
     "expo-status-bar": "~3.0.9",
     "react": "19.1.0",

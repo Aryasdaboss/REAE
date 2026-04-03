@@ -69,12 +69,12 @@ describe('Task creation', () => {
       .single();
 
     expect(error).toBeNull();
-    expect(data.isCompleted).toBe(false);
-    expect(data.isPinned).toBe(false);
-    expect(data.isSnoozed).toBe(false);
-    expect(data.pomodoroSessions).toBe(0);
-    expect(data.notificationCount).toBe(0);
-    expect(data.aiBreakdownUsed).toBe(false);
+    expect(data.iscompleted).toBe(false);
+    expect(data.ispinned).toBe(false);
+    expect(data.issnoozed).toBe(false);
+    expect(data.pomodorosessions).toBe(0);
+    expect(data.notificationcount).toBe(0);
+    expect(data.aibreakdownused).toBe(false);
   });
 
   it('rejects a task with no title (required field)', async () => {
@@ -128,7 +128,7 @@ describe('Task creation', () => {
       .insert({
         title: 'Task with extras',
         importance: 'High',
-        dueDate: '2026-04-01',
+        duedate: '2026-04-01',
         notes: 'Some notes here',
         color: '#FF0000',
         indicator: '🔥',
@@ -137,7 +137,7 @@ describe('Task creation', () => {
       .single();
 
     expect(error).toBeNull();
-    expect(data.dueDate).toBe('2026-04-01');
+    expect(data.duedate).toBe('2026-04-01');
     expect(data.notes).toBe('Some notes here');
   });
 
@@ -150,7 +150,7 @@ describe('Task creation', () => {
       .single();
 
     expect(error).toBeNull();
-    expect(data.userId).toBe(userData.user?.id);
+    expect(data.userid).toBe(userData.user?.id);
   });
 });
 
@@ -205,26 +205,26 @@ describe('Task updating', () => {
   it('marks a task as completed and sets completedAt', async () => {
     const { data, error } = await clientA
       .from('tasks')
-      .update({ isCompleted: true, completedAt: new Date().toISOString() })
+      .update({ iscompleted: true, completedat: new Date().toISOString() })
       .eq('id', createdTaskId)
       .select()
       .single();
 
     expect(error).toBeNull();
-    expect(data.isCompleted).toBe(true);
-    expect(data.completedAt).not.toBeNull();
+    expect(data.iscompleted).toBe(true);
+    expect(data.completedat).not.toBeNull();
   });
 
   it('marks a task as pinned', async () => {
     const { data, error } = await clientA
       .from('tasks')
-      .update({ isPinned: true })
+      .update({ ispinned: true })
       .eq('id', createdTaskId)
       .select()
       .single();
 
     expect(error).toBeNull();
-    expect(data.isPinned).toBe(true);
+    expect(data.ispinned).toBe(true);
   });
 });
 
