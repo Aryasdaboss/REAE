@@ -24,7 +24,8 @@ to pass the token directly.
 ```json
 {
   "taskId": "uuid",
-  "title": "string"
+  "title": "string",
+  "dueDate": "YYYY-MM-DD | null"
 }
 ```
 
@@ -32,33 +33,48 @@ to pass the token directly.
 |---|---|---|---|
 | `taskId` | uuid | Yes | ID of the parent task |
 | `title` | string | Yes | Title of the task to break down |
+| `dueDate` | string \| null | No | Parent task's due date; helps spread sub-task due dates between today and the parent. Send `null` if no due date. |
 
 **Response — success (200):**
 ```json
 {
-  "subtasks": [
+  "subTasks": [
     {
       "title": "string",
-      "notes": "string | null",
-      "duedate": "ISO date string | null"
+      "dueDate": "YYYY-MM-DD | null"
     }
   ]
 }
 ```
 
+| Field | Type | Description |
+|---|---|---|
+| `subTasks` | array | List of sub-tasks. Order is the order Claude generated them. |
+| `subTasks[].title` | string | Short verb-first title (e.g. "Book venue") |
+| `subTasks[].dueDate` | string \| null | YYYY-MM-DD, spread between today and parent's `dueDate` when present |
+
 **Response — rate limit exceeded (429):**
 ```json
-{ "error": "Rate limit exceeded. You can break down up to 10 tasks per day." }
+{ "error": "You've used all 10 breakdowns for today. Try again tomorrow." }
 ```
 
 **Response — missing fields (400):**
 ```json
-{ "error": "taskId and title are required" }
+{ "error": "taskId is required" }
+```
+or
+```json
+{ "error": "title is required" }
 ```
 
-**Response — Anthropic API error (502):**
+**Response — auth missing/invalid (401):**
 ```json
-{ "error": "Failed to call Claude API" }
+{ "error": "Unauthorized" }
+```
+
+**Response — internal/Anthropic parse failure (500):**
+```json
+{ "error": "Failed to parse sub-tasks from response" }
 ```
 
 **Rate limit:** 10 breakdowns per user per day. Tracked via the `aiBreakdownAt`

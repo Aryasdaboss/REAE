@@ -1,5 +1,56 @@
 # REAE Release Notes
 
+## 0.3.0 — 2026-05-19
+
+### Phase 3 — Core UI (complete: Steps 4–5 land)
+
+Completes the Phase 3 milestone. The app now has full task lifecycle on a
+single screen — create, see ranked list, complete, break-it-down.
+
+**New: Task completion** (`components/TaskCard.tsx`)
+- Hollow gold completion circle on the left edge of every active task card
+- Tap → optimistic local state update + Supabase write (`iscompleted`, `completedat`)
+- Rolls back to previous state if the Supabase write fails
+- Completed cards get a warm-gold tint, strikethrough title, and disabled circle
+
+**New: "Today's wins" section** (`components/DoneSection.tsx`)
+- Collapsible section at the bottom of the Today screen
+- Warm gold header `#C8A415` — celebratory, not loud
+- Shows count when collapsed; chevron expands the list
+- Only includes tasks completed in the current UTC day (resets daily)
+
+**New: Done bucket in the presenter** (`services/todayPresenter.ts`)
+- `prepareTodayTasks` now returns `{ today, overdue, done }`
+- `done` filters by `iscompleted && completedat within referenceDate's UTC day`
+- Sorted by most-recent completion first
+- 6 new unit tests covering empty, filtering, edge dates, sorting
+
+**New: TodayScreen state model**
+- Keeps raw rows in state; derives the three buckets via `useMemo`
+- Enables optimistic updates without a refetch round-trip after every action
+
+**New: "Break it down" inline expansion** (`components/TaskCard.tsx`)
+- "Break it down" pill button under each active task's meta row
+- Inline "Thinking…" spinner while the Edge Function runs
+- On success: inline sub-task list (bullet + title + optional due-date pill)
+  appears below the task. Sub-tasks live in component memory only (not persisted)
+- On 429 rate-limit: friendly inline message — "You've used all 10 breakdowns today. Try again tomorrow."
+- On other errors: friendly italic inline message — never an Alert
+
+**Docs**
+- `API_DOCS.md` updated to match the actual Edge Function shape (was stale —
+  response is `subTasks` not `subtasks`, no `notes` field, request body includes `dueDate`)
+- `FEATURES.md`, `USER_GUIDE.md`, `DESIGN_DECISIONS.md` updated for v0.3.0
+
+**Known deferrals**
+- Component tests (TaskCard, TodayScreen) — need `@testing-library/react-native`
+  setup; tracked as a separate Small enhancement
+- Completion animation polish — instant flip via optimistic state for now;
+  smooth slide-out can be added later without behavior change
+- Sub-task persistence — display-only in MVP per FEATURES decision
+
+---
+
 ## 0.2.0 — 2026-05-18
 
 ### Phase 3 — Core UI (partial: Steps 1–3 of 6)

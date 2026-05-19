@@ -1,6 +1,6 @@
 # REAE User Guide
 
-**Current version:** 0.2.0
+**Current version:** 0.3.0
 **Live URL:** https://REAE.parlapalli.com
 
 ---
@@ -32,14 +32,16 @@ automatically based on due dates, importance, and your own usage patterns.
 ## Today Screen
 
 After signing in you land on the **Today** screen. It shows your active tasks
-in two sections:
+in two sections plus a collapsible "Today's wins" section at the bottom:
 
 - **Today** — everything not yet due in the past, sorted by the ranking engine.
   Pinned tasks always appear first.
 - **Needs rescheduling** — tasks whose due date has already passed. No red
   warnings or guilt language — just a calm prompt to revisit.
+- **Today's wins** — tasks you completed today. Collapsed by default; tap the
+  header to expand. Resets each calendar day.
 
-The empty state ("All clear.") appears when you have nothing active.
+The empty state ("All clear.") appears when you have nothing in any section.
 
 ## Tasks
 
@@ -57,6 +59,31 @@ slides up from the bottom with:
 
 The date phrase is left in the title (we don't strip it).
 
+### Completing a Task
+
+Tap the **hollow circle** on the left edge of any active task card. The circle
+fills with a warm gold check, the title gets a strikethrough, and the card
+moves to the **Today's wins** section at the bottom of the screen. The update
+is optimistic — the UI reacts instantly while the save runs in the background.
+
+If the save fails for any reason, the card returns to its original section and
+a brief error appears at the top of the list.
+
+### "Break It Down"
+
+Tap **Break it down** on any active task card. A short "Thinking…" spinner
+shows while the request is in flight; on success, an inline list of suggested
+sub-tasks appears directly below the task title.
+
+Sub-tasks are **display-only in this release** — they do not persist across
+reloads, and they are not editable. They live only in your current view of
+the card. (Real sub-task storage lands in a later phase.)
+
+You can use Break it down up to **10 times per day**. After the limit you'll
+see a polite inline message:
+
+> *"You've used all 10 breakdowns today. Try again tomorrow."*
+
 ### Task Fields
 
 | Field | Required | Notes |
@@ -70,13 +97,8 @@ The date phrase is left in the title (we don't strip it).
 
 ---
 
-## "Break It Down"
+<!-- "Break It Down" section moved up under Tasks in v0.3.0 -->
 
-_UI lands in v0.3.0 (Phase 3 Step 5). The Edge Function is already deployed._
-
-On any task, you'll be able to tap **Break it down** to decompose it into a
-list of smaller, actionable steps. You can use this feature up to 10 times
-per day.
 
 ---
 

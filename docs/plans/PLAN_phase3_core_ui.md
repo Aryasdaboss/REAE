@@ -1,6 +1,6 @@
 # Phase 3 — Core UI Implementation Plan
 
-**Overall Progress:** `55%`
+**Overall Progress:** `90%`
 
 ## TLDR
 Build the first user-visible milestone: a navigable task app with a ranked Today screen, bottom-sheet task creation with NLP date parsing, task completion with a "Done today" section, and inline "Break it down" expansion. Introduces React Navigation. No DB schema changes.
@@ -47,19 +47,23 @@ Build the first user-visible milestone: a navigable task app with a ranked Today
   - [ ] Swipe-down gesture to dismiss — **deferred** (requires PanResponder; backdrop+Cancel cover the case for now)
   - [ ] Verify in browser — FAB opens sheet, NLP preview shows for "tomorrow", save creates a card on the list
 
-- [ ] **Phase 4: Task Completion + Done Section**
-  - [ ] Create `components/TaskCard.tsx` — task card with completion circle
-  - [ ] Create `components/DoneSection.tsx` — "Done today" section, warm gold `#C8A415`
-  - [ ] Tapping completion circle: animate card out of ranked list, animate into Done section
-  - [ ] Done section collapsed by default, expands to show completed tasks
-  - [ ] Update `iscompleted` + `completedat` in Supabase on completion
+- [~] **Step 4: Task Completion + Done Section**
+  - [x] Presenter `done` bucket — filters completed-today, sorts by completedat desc (6 new tests)
+  - [x] `components/TaskCard.tsx` — completion circle on left, optimistic local state, accessible labels
+  - [x] `components/DoneSection.tsx` — collapsible, warm gold header `#C8A415`, count + chevron
+  - [x] TodayScreen: raw rows in state + `useMemo` for sections — enables optimistic update without refetch
+  - [x] `handleComplete` writes `iscompleted=true, completedat=now()` to Supabase; rolls back on error
+  - [x] Done section collapsed by default, expands on tap
+  - [ ] Animation polish — card slide-out / slide-into-done deferred. For v1 the flip is instant via optimistic state.
+  - [ ] Verify in browser (will batch with Step 5 deploy as v0.3.0)
 
-- [ ] **Phase 5: "Break It Down" Inline Expansion**
-  - [ ] Add "Break it down" button to TaskCard (hidden if `aibreakdownused` is true and sub-tasks already loaded)
-  - [ ] On tap: show inline spinner, call `supabase.functions.invoke('break-it-down', { body: { taskId, title, dueDate } })` with user JWT
-  - [ ] On success: expand sub-task list inline below task title
-  - [ ] On 429 rate limit: show friendly inline message "You've used all 10 breakdowns today. Try again tomorrow."
-  - [ ] On error: show friendly inline message, do not use Alert
+- [x] **Step 5: "Break It Down" Inline Expansion**
+  - [x] "Break it down" button on TaskCard (only on active cards, hidden once sub-tasks load in current session)
+  - [x] On tap: inline spinner + "Thinking…" label. Calls `supabase.functions.invoke('break-it-down', { body: { taskId, title, dueDate } })`.
+  - [x] On success: inline sub-task list below the meta row (bullet, title, optional due-date pill)
+  - [x] On 429: inline friendly message "You've used all 10 breakdowns today. Try again tomorrow."
+  - [x] On other error: inline friendly italic message — no Alert
+  - [x] Sub-tasks live in component memory only (per FEATURES decision — not persisted in MVP)
 
 - [ ] **Phase 6: Tests, Docs, Version Bump, Deploy**
   - [ ] Write `tests/screens/TodayScreen.test.ts` — ranking integration, overdue split, empty state

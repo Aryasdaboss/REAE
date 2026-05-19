@@ -22,6 +22,7 @@ function makeRow(overrides: Partial<TaskRow>): TaskRow {
     issnoozed: false,
     duedate: null,
     createdat: '2026-05-17T00:00:00Z',
+    completedat: null,
     ...overrides,
   };
 }
@@ -31,11 +32,12 @@ describe('prepareTodayTasks — empty + filtering', () => {
     const result = prepareTodayTasks([], TODAY);
     expect(result.today).toEqual([]);
     expect(result.overdue).toEqual([]);
+    expect(result.done).toEqual([]);
   });
 
-  it('filters out completed tasks', () => {
+  it('filters completed tasks out of today/overdue', () => {
     const rows = [
-      makeRow({ id: '1', title: 'Done', iscompleted: true }),
+      makeRow({ id: '1', title: 'Done', iscompleted: true, completedat: '2026-05-18T10:00:00Z' }),
       makeRow({ id: '2', title: 'Active' }),
     ];
     const result = prepareTodayTasks(rows, TODAY);
@@ -158,5 +160,66 @@ describe('prepareTodayTasks — immutability', () => {
     const snapshot = JSON.stringify(rows);
     prepareTodayTasks(rows, TODAY);
     expect(JSON.stringify(rows)).toBe(snapshot);
+  });
+});
+
+describe('prepareTodayTasks — done bucket', () => {
+  it('puts a task completed today into the done bucket', () => {
+    const rows = [
+      makeRow({ id: '1', iscompleted: true, completedat: '2026-05-18T09:30:00Z' }),
+    ];
+    const result = prepareTodayTasks(rows, TODAY);
+    expect(result.done).toHaveLength(1);
+    expect(result.done[0].id).toBe('1');
+    expect(result.today).toHaveLength(0);
+    expect(result.overdue).toHaveLength(0);
+  });
+
+  it('excludes a task completed before today (historical)', () => {
+    const rows = [
+      makeRow({ id: '1', iscompleted: true, completedat: '2026-05-17T20:00:00Z' }),
+    ];
+    const result = prepareTodayTasks(rows, TODAY);
+    expect(result.done).toHaveLength(0);
+  });
+
+  it('excludes a task completed tomorrow (future, defensive guard)', () => {
+    const rows = [
+      makeRow({ id: '1', iscompleted: true, completedat: '2026-05-19T01:00:00Z' }),
+    ];
+    const result = prepareTodayTasks(rows, TODAY);
+    expect(result.done).toHaveLength(0);
+  });
+
+  it('excludes a completed task with no completedat (defensive — should not happen)', () => {
+    const rows = [
+      makeRow({ id: '1', iscompleted: true, completedat: null }),
+    ];
+    const result = prepareTodayTasks(rows, TODAY);
+    expect(result.done).toHaveLength(0);
+    expect(result.today).toHaveLength(0); // still filtered from active
+  });
+
+  it('sorts the done bucket by completedat descending (most recent first)', () => {
+    const rows = [
+      makeRow({ id: 'early', iscompleted: true, completedat: '2026-05-18T08:00:00Z' }),
+      makeRow({ id: 'late',  iscompleted: true, completedat: '2026-05-18T18:00:00Z' }),
+      makeRow({ id: 'mid',   iscompleted: true, completedat: '2026-05-18T12:00:00Z' }),
+    ];
+    const result = prepareTodayTasks(rows, TODAY);
+    expect(result.done.map(t => t.id)).toEqual(['late', 'mid', 'early']);
+  });
+
+  it('handles a mixed list — active, overdue, done', () => {
+    const rows = [
+      makeRow({ id: 'a',    duedate: null }),
+      makeRow({ id: 'o',    duedate: '2026-05-10' }),
+      makeRow({ id: 'done', iscompleted: true, completedat: '2026-05-18T11:00:00Z' }),
+      makeRow({ id: 'snz',  issnoozed: true }),
+    ];
+    const result = prepareTodayTasks(rows, TODAY);
+    expect(result.today.map(t => t.id)).toEqual(['a']);
+    expect(result.overdue.map(t => t.id)).toEqual(['o']);
+    expect(result.done.map(t => t.id)).toEqual(['done']);
   });
 });

@@ -149,3 +149,45 @@ is kept in `title`. We do not rewrite the user's title.
 that strip get this wrong on edge cases (multiple date phrases, "by Friday" vs
 "on Friday", titles where the date phrase IS the action). Keeping the title verbatim
 is the safer v1 choice. We can revisit in Phase 6 if users complain.
+
+---
+
+## Task Completion is Optimistic (Local State First, Then Supabase)
+
+**Decision:** Tapping the completion circle immediately flips the task in local
+state — the card moves to the Done section before the Supabase write returns.
+If the write fails, we roll the local state back and show a friendly error.
+**Date:** 2026-05-19
+**Rationale:** Completing a task is the most-frequent positive action in the app.
+Making it feel instant matters more than perfect consistency. The roll-back path
+covers the rare write failure, and Supabase writes are reliable enough that
+optimistic-first is the right default. TodayScreen keeps raw rows in state and
+derives sections via `useMemo` to make this pattern clean.
+
+---
+
+## Sub-Tasks From "Break It Down" Live Only in Component Memory
+
+**Decision:** Sub-tasks returned by the break-it-down Edge Function are stored
+only in the TaskCard's local React state. They are not written to the database,
+not editable, and disappear on page reload.
+**Date:** 2026-05-19
+**Rationale:** Real sub-task support (storage, editing, completion) is its own
+feature in a later phase. For MVP the goal is to demonstrate the Break-it-down
+flow without committing to a sub-task schema that may need to change. The
+server-side rate-limit (10/day) still applies, so a user can't infinitely
+re-break a task across reloads to spam the API.
+
+---
+
+## "Done Today" Window is UTC-Day-Boundaries
+
+**Decision:** The "Today's wins" section filters by tasks whose `completedat`
+falls within the same UTC calendar day as the reference date. We do NOT use
+local timezone for this comparison.
+**Date:** 2026-05-19
+**Rationale:** Postgres `timestamptz` columns and JS `Date.toISOString()` are
+both UTC-based. Doing the comparison in UTC keeps the filter consistent with
+how the data is stored and how the server thinks about "today". For MVP this
+is the simpler and correct choice. A future timezone-aware version can be
+added when we ship onboarding (Phase 6) where we collect the user's timezone.

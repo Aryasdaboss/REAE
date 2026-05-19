@@ -31,12 +31,14 @@ export interface TaskRow {
   issnoozed: boolean;
   duedate: string | null;
   createdat: string;
+  completedat?: string | null;
   [key: string]: unknown;
 }
 
 export interface TodaySections {
   today: RankedTask[];
   overdue: RankedTask[];
+  done: RankedTask[];
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -51,7 +53,17 @@ function mapRowToRankedTask(row: TaskRow): RankedTask {
     isSnoozed: row.issnoozed,
     dueDate: row.duedate,
     createdAt: row.createdat,
+    completedAt: row.completedat ?? null,
   };
+}
+
+function isSameUtcDay(timestamp: string, referenceDate: Date): boolean {
+  const t = new Date(timestamp);
+  return (
+    t.getUTCFullYear() === referenceDate.getUTCFullYear() &&
+    t.getUTCMonth()    === referenceDate.getUTCMonth() &&
+    t.getUTCDate()     === referenceDate.getUTCDate()
+  );
 }
 
 function isOverdue(dueDate: string | null, referenceDate: Date): boolean {
@@ -87,13 +99,24 @@ export function prepareTodayTasks(
   weights: RankingWeights = defaultWeights,
 ): TodaySections {
   const active = rows.filter(r => !r.iscompleted && !r.issnoozed);
-  const mapped = active.map(mapRowToRankedTask);
+  const mappedActive = active.map(mapRowToRankedTask);
 
-  const overdueTasks = mapped.filter(t => isOverdue(t.dueDate, referenceDate));
-  const todayTasks   = mapped.filter(t => !isOverdue(t.dueDate, referenceDate));
+  const overdueTasks = mappedActive.filter(t => isOverdue(t.dueDate, referenceDate));
+  const todayTasks   = mappedActive.filter(t => !isOverdue(t.dueDate, referenceDate));
+
+  const doneToday = rows
+    .filter(r => r.iscompleted && r.completedat && isSameUtcDay(r.completedat, referenceDate))
+    .map(mapRowToRankedTask)
+    .sort((a, b) => {
+      // most recent completion first
+      const aT = a.completedAt as string;
+      const bT = b.completedAt as string;
+      return new Date(bT).getTime() - new Date(aT).getTime();
+    });
 
   return {
     today:   rankTasks(todayTasks,   weights, undefined, referenceDate),
     overdue: rankTasks(overdueTasks, weights, undefined, referenceDate),
+    done:    doneToday,
   };
 }

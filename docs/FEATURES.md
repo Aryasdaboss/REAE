@@ -30,7 +30,7 @@ Status: `done` | `planned` | `rejected`
 
 ---
 
-## Phase 3 — Core UI (in progress — Steps 1–3 shipped in v0.2.0)
+## Phase 3 — Core UI (Steps 1–5 shipped in v0.3.0)
 
 | Feature | Status | Notes |
 |---|---|---|
@@ -38,14 +38,17 @@ Status: `done` | `planned` | `rejected`
 | AuthScreen extracted | done | `screens/AuthScreen.tsx` |
 | Today screen — ranked task list | done | `screens/TodayScreen.tsx` using `prepareTodayTasks` |
 | Overdue split — "Needs rescheduling" section | done | Compassionate, no red warnings |
-| Today presenter (DB → engine) | done | `services/todayPresenter.ts`, 12 tests |
+| Today presenter (DB → engine) | done | `services/todayPresenter.ts`, 18 tests |
 | Task creation bottom sheet | done | `components/CreateTaskSheet.tsx`, custom Animated API |
 | Live NLP "Due: X" preview | done | Uses `parseDate` + `formatDueDatePreview` helper |
 | Importance picker (Low/Med/High/Critical) | done | Medium default |
-| Task completion animation | planned | Step 4 — slides into "Done today" section (warm gold) |
-| "Done today" section | planned | Step 4 |
-| "Break it down" inline expansion | planned | Step 5 — calls Edge Function, shows sub-tasks |
-| Swipe-down dismiss on sheet | planned | Deferred — backdrop+Cancel cover the case in v0.2.0 |
+| Task completion | done | `components/TaskCard.tsx` circle tap → optimistic update + Supabase write |
+| "Done today" section | done | `components/DoneSection.tsx`, collapsible, warm gold `#C8A415` |
+| "Break it down" inline expansion | done | `TaskCard` button → Edge Function call → inline sub-task list |
+| Rate-limit (429) friendly message | done | Inline, no Alert |
+| Component tests (TaskCard, TodayScreen) | planned | Deferred — need `@testing-library/react-native` setup |
+| Task completion animation polish | planned | Currently instant via optimistic state; smooth slide-out polish later |
+| Swipe-down dismiss on sheet | planned | Deferred — backdrop+Cancel cover the case |
 
 ---
 
