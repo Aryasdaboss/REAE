@@ -30,14 +30,22 @@ Status: `done` | `planned` | `rejected`
 
 ---
 
-## Phase 3 — Core UI (planned)
+## Phase 3 — Core UI (in progress — Steps 1–3 shipped in v0.2.0)
 
 | Feature | Status | Notes |
 |---|---|---|
-| Today screen | planned | Ranked task list using rankingEngine |
-| Task creation screen | planned | NLP parser for date extraction |
-| Task completion animation | planned | Compassionate, positive feedback |
-| "Break it down" button | planned | Calls Edge Function, shows sub-tasks |
+| React Navigation scaffold | done | `@react-navigation/native-stack`, Auth → Today |
+| AuthScreen extracted | done | `screens/AuthScreen.tsx` |
+| Today screen — ranked task list | done | `screens/TodayScreen.tsx` using `prepareTodayTasks` |
+| Overdue split — "Needs rescheduling" section | done | Compassionate, no red warnings |
+| Today presenter (DB → engine) | done | `services/todayPresenter.ts`, 12 tests |
+| Task creation bottom sheet | done | `components/CreateTaskSheet.tsx`, custom Animated API |
+| Live NLP "Due: X" preview | done | Uses `parseDate` + `formatDueDatePreview` helper |
+| Importance picker (Low/Med/High/Critical) | done | Medium default |
+| Task completion animation | planned | Step 4 — slides into "Done today" section (warm gold) |
+| "Done today" section | planned | Step 4 |
+| "Break it down" inline expansion | planned | Step 5 — calls Edge Function, shows sub-tasks |
+| Swipe-down dismiss on sheet | planned | Deferred — backdrop+Cancel cover the case in v0.2.0 |
 
 ---
 

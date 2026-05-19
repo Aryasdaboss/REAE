@@ -96,3 +96,56 @@ but it is ignored in MVP and has no effect on ranking.
 **Rationale:** The build plan calls for energy-aware ranking post-validation. Including
 the parameter now ensures no API breakage when it is activated. The parameter must
 exist in the signature — it must not be removed.
+
+---
+
+## React Navigation for Multi-Screen Foundation
+
+**Decision:** Use `@react-navigation/native-stack` to manage screens, starting in
+Phase 3 (Step 1). All screen-to-screen transitions go through React Navigation;
+the App.tsx root only wires the navigator and session-aware routing.
+**Date:** 2026-05-18
+**Rationale:** Phase 3–6 introduce multiple screens (Today, Task detail, Settings,
+Onboarding). Building a navigation foundation now is cheaper than retrofitting after
+each phase. native-stack uses platform-native containers (UINavigationController on
+iOS, FragmentTransaction on Android) for transitions that feel right out of the box
+and survive Stage B (native iOS) without a rewrite.
+
+---
+
+## Custom Animated Bottom Sheet (No External Dependency)
+
+**Decision:** The task creation sheet (`components/CreateTaskSheet.tsx`) uses
+React Native's built-in `Animated` API for the slide-up/dismiss transitions.
+We do NOT pull in `@gorhom/bottom-sheet` or similar.
+**Date:** 2026-05-18
+**Rationale:** The sheet's animation needs are simple — a translate-Y interpolation
+plus a backdrop opacity fade. Adding a 200KB+ dependency and its `react-native-reanimated`
+peer dependency for one component would dominate the web bundle. Hand-rolling it is
+~40 lines and keeps the dependency surface small.
+
+---
+
+## Today Presenter as a Separate Pure Function
+
+**Decision:** The DB→engine mapping, filtering of completed/snoozed tasks, and
+overdue split live in `services/todayPresenter.ts` as a pure function — not inline
+in the Today screen component.
+**Date:** 2026-05-18
+**Rationale:** Same reasoning as the ranking engine (see above). Pure functions are
+trivially testable without React infrastructure. Anything that smells like business
+logic on the Today screen path should keep migrating into this presenter rather than
+accumulating in the screen.
+
+---
+
+## Create-Task Sheet Does Not Strip Date Phrases From Title
+
+**Decision:** When the NLP parser detects a date in the task title (e.g. "call
+dentist tomorrow"), the parsed date is saved to `duedate` BUT the original phrase
+is kept in `title`. We do not rewrite the user's title.
+**Date:** 2026-05-18
+**Rationale:** Stripping is a surprising silent edit to user input. Most task apps
+that strip get this wrong on edge cases (multiple date phrases, "by Friday" vs
+"on Friday", titles where the date phrase IS the action). Keeping the title verbatim
+is the safer v1 choice. We can revisit in Phase 6 if users complain.

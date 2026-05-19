@@ -1,6 +1,6 @@
 # REAE User Guide
 
-**Current version:** 0.1.0
+**Current version:** 0.2.0
 **Live URL:** https://REAE.parlapalli.com
 
 ---
@@ -29,13 +29,33 @@ automatically based on due dates, importance, and your own usage patterns.
 
 ---
 
+## Today Screen
+
+After signing in you land on the **Today** screen. It shows your active tasks
+in two sections:
+
+- **Today** — everything not yet due in the past, sorted by the ranking engine.
+  Pinned tasks always appear first.
+- **Needs rescheduling** — tasks whose due date has already passed. No red
+  warnings or guilt language — just a calm prompt to revisit.
+
+The empty state ("All clear.") appears when you have nothing active.
+
 ## Tasks
 
 ### Adding a Task
 
-_Phase 3 (Core UI) — not yet built._
+Tap the **gold "+" button** in the bottom-right corner of the screen. A sheet
+slides up from the bottom with:
 
-Tasks can currently be added directly via the Supabase dashboard for testing.
+- **Title input** — type the task. If your title includes a date phrase
+  ("call dentist tomorrow", "submit report next Friday") a **Due: X** preview
+  appears below the input within a keystroke.
+- **Importance picker** — Low / Medium / High / Critical. Medium is the default.
+- **Save** — inserts the task and re-ranks the list.
+- **Cancel** or **tap the backdrop** — dismisses without saving.
+
+The date phrase is left in the title (we don't strip it).
 
 ### Task Fields
 
@@ -52,10 +72,11 @@ Tasks can currently be added directly via the Supabase dashboard for testing.
 
 ## "Break It Down"
 
-_Phase 3 (Core UI) — UI not yet built. Edge Function is ready._
+_UI lands in v0.3.0 (Phase 3 Step 5). The Edge Function is already deployed._
 
-On any task, you can tap **Break it down** to decompose it into a list of
-smaller, actionable steps. You can use this feature up to 10 times per day.
+On any task, you'll be able to tap **Break it down** to decompose it into a
+list of smaller, actionable steps. You can use this feature up to 10 times
+per day.
 
 ---
 
